@@ -4,6 +4,7 @@ const express = require('express')
 const {render} = require("pug");
 const app = express()
 const port = 3000
+
 app.use(express.static('public'))
 
 
@@ -11,7 +12,13 @@ app.set('view engine', 'pug');
 
 
 app.get('/', (req, res)=> {
-   res.render('index')
+    const name = 'name';
+    const title = 'title'
+    const birthdate = 'birthdate';
+    const weight = 'weight';
+    const content = {name, birthdate, weight};
+
+   res.render('index', content);
 });
 
 
