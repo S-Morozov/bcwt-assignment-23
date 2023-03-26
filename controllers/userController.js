@@ -15,7 +15,7 @@ const getUser = (req, res) => {
     //console.log(req.params);
     const id = req.params.userId;
     // filter matching user(s) based on id
-    const filteredUsers = users.filter(user => id == user.id);
+    const filteredUsers = users.filter(user => id === user.id);
     if (filteredUsers.length > 0) {
         res.json(filteredUsers[0]);
     } else {

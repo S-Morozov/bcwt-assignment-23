@@ -1,15 +1,13 @@
 'use strict';
-// catController
-
 const catModel = require('../models/catModel');
 
 const cats = catModel.cats;
 
-const getCatList = (req,res)=>{
+const getCatList = (req, res) => {
     res.json(cats);
 };
 
-const getCat = (req, res) =>{
+const getCat = (req, res) => {
     //console.log(req.params);
     const id = req.params.catId;
     // filter matching cat(s) based on id
