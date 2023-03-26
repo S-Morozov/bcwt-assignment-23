@@ -40,7 +40,6 @@ const postUser = (req, res) => {
 const putUser = (req, res) => {
     res.send('With this endpoint you can modify a user');
 };
-
 const deleteUser = (req, res) => {
     res.send('With this endpoint you can delete a user');
 };
