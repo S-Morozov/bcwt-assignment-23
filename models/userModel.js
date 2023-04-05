@@ -1,19 +1,36 @@
 'use strict';
-const users = [
-  {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@metropolia.fi',
-    password: '1234',
-  },
-  {
-    id: '2',
-    name: 'Jane Doez',
-    email: 'jane@metropolia.fi',
-    password: '',
-  },
-];
+const pool = require('../database/db');
+const promisePool = pool.promise();
+
+const getAllUsers = async () => {
+  try {
+    const sql = `SELECT user_id, name, email FROM wop_user`;
+    const [rows] = await promisePool.query(sql);
+    // console.log(rows);
+    return rows;
+  } catch (e) {
+    console.error('error', e.message);
+    throw new Error('sql query failed');
+  }
+};
+
+// TODO: add sql function for get/:id, put & post queries
+
+// User authentication
+const getUserLogin = async (email) => {
+  console.log('get user login for', email);
+  try {
+    const [rows] = await promisePool.execute(
+        'SELECT * FROM wop_user WHERE email = ?;',
+        [email]);
+    console.log('get user login rows', rows);
+    return rows;
+  } catch (e) {
+    console.log('error', e.message);
+  }
+};
 
 module.exports = {
-  users,
+  getAllUsers,
+  getUserLogin,
 };

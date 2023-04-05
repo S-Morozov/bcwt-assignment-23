@@ -1,23 +1,31 @@
 'use strict';
 const express = require('express');
+const cors = require('cors');
+const catRoute = require('./routes/catRoute');
+const userRoute = require('./routes/userRoute');
+const authRoute = require('./routes/authRoute');
+require('./utils/passport')
 const app = express();
 const port = 3000;
 
-app.get('/cat', (req, res) => {
-  res.send('From this endpoint you can get cats.')
+// Log middleware
+app.use((req, res, next) => {
+  console.log(Date.now() + ': request: ' + req.method + ' ' + req.path);
+  next();
 });
 
-// POST method route
-app.post('/cat', (req, res) => {
-  res.send('With this endpoint you can add cats.')
-})
+// Serve example-ui
+app.use(express.static('example-ui'));
+// Serve uploaded image files
+app.use('/uploads', express.static('uploads'));
+// Add 'Access-Control-Allow-Origin: *' header to all
+// responses using cors middleware
+app.use(cors());
+// middleware for parsing request body
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
-app.put('/cat', (req, res) => {
-  res.send('With this endpoint you can edit cats.')
-})
-
-app.delete('/cat', (req, res) => {
-  res.send('With this endpoint you can delete cats.')
-})
+app.use('/cat', catRoute);
+app.use('/user', userRoute);
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

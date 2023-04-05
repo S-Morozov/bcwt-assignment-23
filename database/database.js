@@ -1,3 +1,7 @@
+// DROP DATABASE IF EXISTS catdb_dev;
+// CREATE DATABASE catdb_dev;
+// USE catdb_dev;
+//
 // CREATE TABLE `wop_cat` (
 //     `cat_id` int(11) NOT NULL,
 //     `name` text NOT NULL,
