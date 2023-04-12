@@ -18,7 +18,8 @@ passport.use(
             if (user === undefined) {
                 return done(null, false, {message: 'Incorrect email.'});
             }
-            if (user.password !== password) {
+            const loginOk = await bcrypt.compare(password, user.password);
+            if (!loginOk) {
                 return done(null, false, {message: 'Incorrect password.'});
             }
             // use spread syntax to create shallow copy to get rid of binary row type

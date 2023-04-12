@@ -1,16 +1,17 @@
 'use strict';
 const catModel = require('../models/catModel');
 const {validationResult} = require('express-validator');
+const {makeThumbnail} = require('../utils/image');
 
 const getCatList = async (req, res) => {
     try {
-        let cats = await catModel.getAllCats();
+        const cats = await catModel.getAllCats();
+        // Functionality below is now done in 'db.js' by 'dateStrings: true' setting
         // convert ISO date to date only
-        // should this be done on the front-end side??
-        cats = cats.map((cat) => {
-            cat.birthdate = cat.birthdate.toISOString().split('T')[0];
-            return cat;
-        });
+        // cats = cats.map((cat) => {
+        //   cat.birthdate = cat.birthdate.toISOString().split('T')[0];
+        //   return cat;
+        // });
         res.json(cats);
     } catch (error) {
         res.status(500).json({error: 500, message: error.message});
@@ -18,7 +19,6 @@ const getCatList = async (req, res) => {
 };
 
 const getCat = async (req, res) => {
-    //console.log(req.params);
     // convert id value to number
     const catId = Number(req.params.id);
     // check if number is not an integer
@@ -58,7 +58,10 @@ const postCat = async (req, res) => {
     }
     const newCat = req.body;
     newCat.filename = req.file.filename;
-    // TODO: use req.user to add correct owner id
+    // use req.user (extracted from token by passport) to add correct owner id
+    // NOTE: owner field must not be validated anymore in cat route when uploading cats
+    newCat.owner = req.user.user_id;
+    await makeThumbnail(req.file.path, newCat.filename);
     try {
         const result = await catModel.insertCat(newCat);
         res.status(201).json({message: 'new cat added!'});
@@ -79,10 +82,17 @@ const putCat = async (req, res) => {
         return;
     }
     const cat = req.body;
-    // TODO: before modifying a cat you should check that user is the owner of
-    // that specific cat (req.user.user_id == cat.owner). Can be done in catModel!
+    // for now owner is always the logged in user (read from token)
+    cat.owner = req.user.user_id;
+    // Note the two alternatives for passing the cat id in router
+    if (req.params.id) {
+        cat.id = parseInt(req.params.id);
+    }
     try {
-        const result = await catModel.modifyCat(cat);
+        console.log('updating a cat', req.body);
+        // only owner of the cat can update it's data (req.user.user_id == cat.owner)
+        // checked in catModel with sql query
+        const result = await catModel.modifyCat(cat, req.user.user_id);
         res.status(200).json({message: 'cat modified!'});
     } catch (error) {
         res.status(500).json({error: 500, message: error.message});
@@ -92,7 +102,8 @@ const putCat = async (req, res) => {
 const deleteCat = async (req, res) => {
     // console.log('deleting a cat', req.params.id);
     try {
-        const result = await catModel.deleteCat(req.params.id);
+        // only owner of the cat can delete it (TODO: or admin)
+        const result = await catModel.deleteCat(req.params.id, req.user.user_id);
         res.status(200).json({message: 'cat deleted!'});
     } catch (error) {
         res.status(500).json({error: 500, message: error.message});
