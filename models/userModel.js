@@ -13,6 +13,17 @@ const getAllUsers = async () => {
     throw new Error('sql query failed');
   }
 };
+const getUserById = async (id) => {
+  try {
+    const sql = `SELECT user_id, name, email FROM wop_user WHERE user_id = ?`;
+    const [rows] = await promisePool.query(sql, [id]);
+    // console.log(rows);
+    return rows[0];
+  } catch (e) {
+    console.error('error', e.message);
+    throw new Error('sql query failed');
+  }
+};
 
 // TODO: add sql function for get/:id, put & post queries
 
@@ -32,5 +43,6 @@ const getUserLogin = async (email) => {
 
 module.exports = {
   getAllUsers,
+  getUserById,
   getUserLogin,
 };
